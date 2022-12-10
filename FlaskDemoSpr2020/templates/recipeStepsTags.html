@@ -1,0 +1,79 @@
+<html>
+<head>
+</head>
+<body>
+
+<h1>Welcome {{username}}</h1>
+
+Recipe ID: {{recipeID}}
+<br>
+Title: {{title}}
+<br>
+Servings: {{numServings}}
+<br>
+<br>
+StepNo: {{stepNo}}
+<br>
+
+<style type="text/css">
+	table, th, td{
+		border: 1px solid black;
+	}
+</style>
+
+Recipe Steps:
+
+<table>
+	<th>Step No</th>
+	<th>Description</th>
+
+{% for line in steps %}
+	<tr>
+		<td>{{line.stepNo}}</td>
+		<td>{{line.sDesc}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+<br>
+<form action="/recipeSteps" method="POST">
+	<input type="text" name = "stepDescription" placeholder="Step" required/> </br>
+	<input type="submit" value = "Add Step" />
+	{% if error %}
+		<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
+</form>
+
+<br>
+
+Recipe Tags:
+
+<table>
+	<th>Tag</th>
+
+{% for line in tags %}
+	<tr>
+		<td>{{line.tagText}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+<br>
+<form action="/recipeTags" method="POST">
+	<input type="text" name = "tagText" placeholder="Tag" required/> </br>
+	<input type="submit" value = "Add Tag" />
+	{% if error %}
+		<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
+</form>
+
+
+<br>
+<a href="/home">Home</a>
+<br>
+<a href="/logout">Logout</a>
+
+</body>
+
+
+</html>

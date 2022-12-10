@@ -1,0 +1,40 @@
+<html>
+<head>
+</head>
+<body>
+
+<h1>Welcome {{username}}</h1> 
+
+<style type="text/css">
+	table, th, td{
+		border: 1px solid black;
+	}
+</style>
+
+Here are your recipes:
+
+<table>
+	<th>Recipe ID</th>
+	<th>Title</th>
+	<th>Servings</th>
+
+{% for line in posts %}
+	<tr>
+		<td>{{line.recipeID}}</td>
+		<td>{{line.title}}</td>
+		<td>{{line.numServings}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+<a href="/post">Post a Recipe</a>
+<a href="/rsvp">Reservations</a>
+<a href="/group">Groups</a>
+<br>
+<a href="/logout">Logout</a>
+
+
+</body>
+
+
+</html>
