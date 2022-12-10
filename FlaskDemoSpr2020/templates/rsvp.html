@@ -1,0 +1,72 @@
+<html>
+<head>
+</head>
+<body>
+
+<h1>Welcome {{username}}</h1> 
+
+<style type="text/css">
+	table, th, td{
+		border: 1px solid black;
+	}
+</style>
+
+Here are your recipes:
+
+<table>
+	<th>Recipe ID</th>
+	<th>Title</th>
+	<th>Servings</th>
+
+{% for line in posts %}
+	<tr>
+		<td>{{line.recipeID}}</td>
+		<td>{{line.title}}</td>
+		<td>{{line.numServings}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+Here are your reservations:
+
+<table>
+	<th>Event ID</th>
+	<th>Event Name</th>
+	<th>Event Description</th>
+	<th>Event Date</th>
+	<th>Event Creator</th>
+
+{% for line in posts %}
+	<tr>
+		<td>{{line.recipeID}}</td>
+		<td>{{line.title}}</td>
+		<td>{{line.numServings}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+
+Join a Group!
+
+<form action="/joinGroup" method="POST">
+	<input type="text" name = "memberName" placeholder="your user name" required/> </br>
+    <input type="text" name = "gName" placeholder="Group Name" required/> </br>
+	<input type="text" name = "gCreator" placeholder="Group Creator's Name" required/> </br>
+	<input type="submit" value = "JoinNow" />
+	{% if error1 %}
+		<p class="error1"><strong>Error:</strong> {{error1}}</p>
+	{% endif %}
+
+    {% if remind1 %}
+        <p class="remind1"><strong>Remind:</strong> {{remind1}}</p>
+    {% endif %}
+</form>
+
+<a href="/post">Post a Recipe</a>
+<br>
+<a href="/logout">Logout</a>
+
+</body>
+
+
+</html>
