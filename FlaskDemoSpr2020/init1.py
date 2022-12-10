@@ -275,47 +275,6 @@ def event():
     data = cursor.fetchall()
     cursor.close()
     return render_template('event.html', username=user, posts=data)
-    # return render_template('home.html', username=user)
-
-
-# @app.route('/createEvent', methods=['GET', 'POST'])
-# def createEvent():
-    # user = session['username']
-    # cursor = conn.cursor()
-    # query = 'SELECT gCreator,gName FROM Groupp WHERE gCreator = %s'
-    # cursor.execute(query, (user))
-    # data = cursor.fetchone()
-    # error1 = None
-
-    # if (data):
-    #     cursor1 = conn.cursor()
-    #     eName = request.form['eventName']
-    #     eDesc = request.form.get('eDesc')
-    #     eDate = request.form.get('eDate')
-    #     # sDate = eDate.strftime('%Y-%m-%d')
-    #     gName = request.form.get('gName')
-    #     query = 'INSERT INTO Eventt (eName, eDesc, eDate, gName, gCreator) VALUES(%s, %s, %s, %s, %s)'
-    #     cursor1.execute(query, (eName, eDesc, eDate, gName, user))
-    #     conn.commit()
-
-    #     query = 'select * from Eventt where eID = (select max(eID) from Eventt)'
-    #     cursor1.execute(query)
-    #     for row in cursor:
-    #         eID = row['eID']
-    #         eName = row['eName']
-    #         user = row['gCreator']
-    #     cursor.close()
-
-    #     cursor0 = conn.cursor()
-    #     query = 'SELECT eID, eName, eDesc,eDate FROM Eventt ORDER BY eID DESC'
-    #     cursor0.execute(query, (user))
-    #     data1 = cursor0.fetchall()
-    #     cursor0.close()
-    #     return render_template('event.html', username=user, posts=data1)
-
-    # else:
-    #     error1 = "You don't have this access!"
-    #     return render_template('createEvent.html', error1=error1, username=user)
 
 
 @app.route('/createEvent', methods=['GET', 'POST'])
@@ -354,17 +313,36 @@ def createEvent():
         return render_template('createEvent.html', error1=error1, username=username)
 
 
-# # Reservation *** build after group and event
-# @app.route('/rsvp')
-# def rsvp():
-#     user = session['username']
-#     cursor = conn.cursor()
-#     query = 'SELECT eID, eName, eDesc,eDate,gName,gCreator FROM Eventt join RSVP WHERE userName = %s ORDER BY eID DESC'
-#     cursor.execute(query, (user))
-#     data = cursor.fetchall()
-#     cursor.close()
-#     return render_template('home.html', username=user, posts=data)
-#     # return render_template('home.html', username=user)
+# Reservation *** build after group and event
+@app.route('/rsvp', methods=['GET', 'POST'])
+def rsvp():
+    user = session['username']
+    responses = ['Y', 'N']
+    remind = None
+    cursor = conn.cursor()
+    query = 'SELECT eID, eName, eDesc,eDate FROM Eventt ORDER BY eID DESC'
+    cursor.execute(query)
+    data = cursor.fetchall()
+
+    query = 'SELECT Eventt.eID, eName, eDesc,eDate,response FROM Eventt join RSVP On Eventt.eID = RSVP.eID Where username = %s'
+    cursor.execute(query, (user))
+    rsvps = cursor.fetchall()
+
+    if request.method == "POST":
+        eID = request.form['eID']
+        response = request.form.get('response')
+        query = 'INSERT INTO RSVP VALUES(%s, %s, %s)'
+        cursor.execute(query, (user, eID, response))
+        conn.commit()
+        cursor.close()
+        remind = "You have created this Event successfully!"
+
+        cursor1 = conn.cursor()
+        query = 'SELECT Eventt.eID, eName, eDesc,eDate,response FROM Eventt join RSVP On Eventt.eID = RSVP.eID Where username = %s'
+        cursor1.execute(query, (user))
+        rsvps = cursor1.fetchall()
+
+    return render_template('rsvp.html', username=user, posts=data, responses=responses, remind=remind, rsvps=rsvps)
 
 
 @app.route('/postRecipe', methods=['GET', 'POST'])
