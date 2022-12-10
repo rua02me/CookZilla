@@ -1,0 +1,57 @@
+<html>
+<head>
+</head>
+<body>
+
+<h1>Find and manage Events here, {{username}}</h1> 
+
+<style type="text/css">
+	table, th, td{
+		border: 1px solid black;
+	}
+</style>
+
+Here are events for you to join:
+
+<table>
+    <th>EventID</th>
+	<th>Event Name</th>
+	<th>Event Description</th>
+    <th>Event Date</th>
+
+{% for line in posts %}
+	<tr>
+		<td>{{line.eID}}</td>
+		<td>{{line.eName}}</td>
+		<td>{{line.eDesc}}</td>
+        <td>{{line.eDate}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+
+<!-- <form action="/CreateGroup" method="POST">
+    <input type="text" name = "gName" placeholder="Group Name" required/> </br>
+	<input type="text" name = "gDesc" placeholder="Group Descriptions" required/> </br>
+	<input type="submit" value = "Create" />
+	{% if error2 %}
+		<p class="error2"><strong>Error:</strong> {{error2}}</p>
+	{% endif %}
+
+    {% if remind2 %}
+        <p class="remind2"><strong>Remind:</strong> {{remind2}}</p>
+    {% endif %}
+</form> -->
+
+
+<a href = "/createEvent">Create an Event</a>
+<!-- <a href="/rsvp">Reservations</a> -->
+<br>
+<a href="/home">Home</a>
+<a href="/logout">Logout</a>
+
+
+</body>
+
+
+</html>

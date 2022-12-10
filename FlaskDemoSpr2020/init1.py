@@ -1,6 +1,17 @@
 # Import Flask Library
 from flask import Flask, render_template, request, session, url_for, redirect, flash
 import pymysql.cursors
+from datetime import datetime
+
+# Program To show How can we use different derivatives
+# Multiple at a time and single at a time
+
+
+# importing the srtftime() and gmtime()
+# if not used the gm time, time changes
+# to the local time
+
+from time import strftime
 
 # for uploading photo:
 from app import app
@@ -169,10 +180,12 @@ def home():
     return render_template('home.html', username=user, posts=data)
     # return render_template('home.html', username=user)
 
-# Wei Zhao
+
+###########################################################
+######################### Wei Zhao ########################
+###########################################################
+
 # Join or Create a group
-
-
 @app.route('/group')
 def group():
     user = session['username']
@@ -240,6 +253,9 @@ def CreateGroup():
         query = 'INSERT INTO Groupp VALUES(%s, %s, %s)'
         cursor.execute(query, (gName, user, gDesc))
         conn.commit()
+        query = 'INSERT INTO GroupMembership VALUES(%s, %s, %s)'
+        cursor.execute(query, (user, gName, user))
+        conn.commit()
         cursor.close()
         cursor2 = conn.cursor()
         query2 = 'SELECT gName, gCreator, gDesc FROM Groupp ORDER BY gName'
@@ -249,7 +265,96 @@ def CreateGroup():
         return render_template('group.html', remind2=remind2, username=user, posts=data2)
 
 
-# # Reservation *** build after group
+# Reservation *** build after group and event
+@app.route('/event')
+def event():
+    user = session['username']
+    cursor = conn.cursor()
+    query = 'SELECT eID, eName, eDesc,eDate FROM Eventt ORDER BY eID DESC'
+    cursor.execute(query)
+    data = cursor.fetchall()
+    cursor.close()
+    return render_template('event.html', username=user, posts=data)
+    # return render_template('home.html', username=user)
+
+
+# @app.route('/createEvent', methods=['GET', 'POST'])
+# def createEvent():
+    # user = session['username']
+    # cursor = conn.cursor()
+    # query = 'SELECT gCreator,gName FROM Groupp WHERE gCreator = %s'
+    # cursor.execute(query, (user))
+    # data = cursor.fetchone()
+    # error1 = None
+
+    # if (data):
+    #     cursor1 = conn.cursor()
+    #     eName = request.form['eventName']
+    #     eDesc = request.form.get('eDesc')
+    #     eDate = request.form.get('eDate')
+    #     # sDate = eDate.strftime('%Y-%m-%d')
+    #     gName = request.form.get('gName')
+    #     query = 'INSERT INTO Eventt (eName, eDesc, eDate, gName, gCreator) VALUES(%s, %s, %s, %s, %s)'
+    #     cursor1.execute(query, (eName, eDesc, eDate, gName, user))
+    #     conn.commit()
+
+    #     query = 'select * from Eventt where eID = (select max(eID) from Eventt)'
+    #     cursor1.execute(query)
+    #     for row in cursor:
+    #         eID = row['eID']
+    #         eName = row['eName']
+    #         user = row['gCreator']
+    #     cursor.close()
+
+    #     cursor0 = conn.cursor()
+    #     query = 'SELECT eID, eName, eDesc,eDate FROM Eventt ORDER BY eID DESC'
+    #     cursor0.execute(query, (user))
+    #     data1 = cursor0.fetchall()
+    #     cursor0.close()
+    #     return render_template('event.html', username=user, posts=data1)
+
+    # else:
+    #     error1 = "You don't have this access!"
+    #     return render_template('createEvent.html', error1=error1, username=user)
+
+
+@app.route('/createEvent', methods=['GET', 'POST'])
+def createEvent():
+    username = session['username']
+    cursor = conn.cursor()
+    query = 'Select gName From Groupp Where gCreator = %s'
+    cursor.execute(query, (username))
+    groupnames = cursor.fetchall()
+    remind = None
+    query = 'SELECT gCreator,gName FROM Groupp WHERE gCreator = %s'
+    cursor.execute(query, (username))
+    userinfo = cursor.fetchone()
+    error1 = None
+
+    if (userinfo):
+        if request.method == "POST":
+            eName = request.form['eName']
+            eDesc = request.form.get('eDesc')
+            eDate = request.form.get('eDate')
+            gName = request.form.get('gName')
+            query = 'INSERT INTO Eventt (eName, eDesc, eDate, gName, gCreator) VALUES(%s, %s, %s, %s, %s)'
+            cursor.execute(query, (eName, eDesc, eDate, gName, username))
+            conn.commit()
+            query = 'select * from Eventt where eID = (select max(eID) from Eventt)'
+            cursor.execute(query)
+            for row in cursor:
+                eID = row['eID']
+                eName = row['eName']
+                username = row['gCreator']
+            cursor.close()
+            remind = "You have created this Event successfully!"
+        return render_template('createEvent.html', username=username, groupnames=groupnames, remind=remind)
+    else:
+        error1 = "You don't have this access!"
+        return render_template('createEvent.html', error1=error1, username=username)
+
+
+# # Reservation *** build after group and event
 # @app.route('/rsvp')
 # def rsvp():
 #     user = session['username']
