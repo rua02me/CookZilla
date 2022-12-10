@@ -322,27 +322,61 @@ def rsvp():
     cursor = conn.cursor()
     query = 'SELECT eID, eName, eDesc,eDate FROM Eventt ORDER BY eID DESC'
     cursor.execute(query)
+    conn.commit()
     data = cursor.fetchall()
 
     query = 'SELECT Eventt.eID, eName, eDesc,eDate,response FROM Eventt join RSVP On Eventt.eID = RSVP.eID Where username = %s'
     cursor.execute(query, (user))
+    conn.commit()
     rsvps = cursor.fetchall()
+    error2 = None
 
     if request.method == "POST":
         eID = request.form['eID']
         response = request.form.get('response')
-        query = 'INSERT INTO RSVP VALUES(%s, %s, %s)'
+        # check if has record user's response
+        # repeat
+        query = 'SELECT eID, username FROM RSVP WHERE username = %s and eID = %s and response = %s'
         cursor.execute(query, (user, eID, response))
         conn.commit()
-        cursor.close()
-        remind = "You have created this Event successfully!"
+        repeat = cursor.fetchall()
+        # user history response for change
+        query = 'SELECT eID, username FROM RSVP WHERE username = %s and eID = %s'
+        cursor.execute(query, (user, eID))
+        conn.commit()
+        userinfo = cursor.fetchall()
 
-        cursor1 = conn.cursor()
-        query = 'SELECT Eventt.eID, eName, eDesc,eDate,response FROM Eventt join RSVP On Eventt.eID = RSVP.eID Where username = %s'
-        cursor1.execute(query, (user))
-        rsvps = cursor1.fetchall()
+        if(repeat):
+            error2 = "Repeated request!"
+            return render_template('rsvp.html', username=user, posts=data, responses=responses, error2=error2, remind=remind, rsvps=rsvps)
+        # # record users response
+        # first check if is an update request
+        else:
+            if (userinfo):
+                query = 'Update RSVP SET response = %s Where username = %s and eID = %s'
+                cursor.execute(query, (response, user, eID))
+                conn.commit()
+                cursor.close()
+                remind = "You have change your mind successfully!"
 
-    return render_template('rsvp.html', username=user, posts=data, responses=responses, remind=remind, rsvps=rsvps)
+                cursor1 = conn.cursor()
+                query = 'SELECT Eventt.eID, eName, eDesc,eDate,response FROM Eventt join RSVP On Eventt.eID = RSVP.eID Where username = %s'
+                cursor1.execute(query, (user))
+                rsvps = cursor1.fetchall()
+                return render_template('rsvp.html', username=user, posts=data, responses=responses, error2=error2, remind=remind, rsvps=rsvps)
+            else:
+                query = 'INSERT INTO RSVP VALUES(%s, %s, %s)'
+                cursor.execute(query, (user, eID, response))
+                conn.commit()
+                cursor.close()
+                remind = "You have attended this Event successfully!"
+
+                cursor1 = conn.cursor()
+                query = 'SELECT Eventt.eID, eName, eDesc,eDate,response FROM Eventt join RSVP On Eventt.eID = RSVP.eID Where username = %s'
+                cursor1.execute(query, (user))
+                rsvps = cursor1.fetchall()
+
+    return render_template('rsvp.html', username=user, posts=data, responses=responses, error2=error2, remind=remind, rsvps=rsvps)
 
 
 @app.route('/postRecipe', methods=['GET', 'POST'])
